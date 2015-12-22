@@ -14,10 +14,12 @@ s.connect(('127.0.0.1', 12345))
 s.sendall(md)
 h = hashlib.new(md)
 
-# send some data
-data = 'hello'
-s.sendall(data)
-h.update(data)
+# read data from stdin and process
+data = sys.stdin.read(1000)
+while len(data) > 0:
+    s.sendall(data)
+    h.update(data)
+    data = sys.stdin.read(1000)
 
 # signal end of data
 s.shutdown(socket.SHUT_WR)
