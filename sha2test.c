@@ -39,7 +39,7 @@ err:
     return -1;
 }
 
-int sha2(const char *mdname)
+int sha2()
 {
     EVP_MD_CTX *mdctx;
     const EVP_MD *md;
@@ -47,8 +47,20 @@ int sha2(const char *mdname)
     int md_len, i;
     char buf[2000];
     int sock, rc;
+    char mdname[7] = {0};
 
     OpenSSL_add_all_digests();
+
+    sock = wait_for_connection();
+    if (sock < 0) return 1;
+
+    // read the first 6 bytes that should be one of sha224, sha256, sha384, sha512,
+    // for this test, it is ok to assume that they will arrive together
+    rc = read(sock, mdname, 6);
+    if (rc != 6) {
+        printf("failed to read the first 6 bytes\n");
+        return 1;
+    }
 
     md = EVP_get_digestbyname(mdname);
     if(!md) {
@@ -58,9 +70,6 @@ int sha2(const char *mdname)
 
     mdctx = EVP_MD_CTX_create();
     EVP_DigestInit_ex(mdctx, md, NULL);
-
-    sock = wait_for_connection();
-    if (sock < 0) return 1;
 
     for (;;) {
         rc = read(sock, buf, sizeof(buf));
@@ -87,5 +96,5 @@ int sha2(const char *mdname)
 
 int main(int argc, char *argv[])
 {
-    return sha2(argv[1]);
+    return sha2();
 }
