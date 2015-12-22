@@ -5,10 +5,11 @@ import sys
 import hashlib
 
 md = sys.argv[1]
+ipaddr = sys.argv[2]
 
 # connect to peer
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-s.connect(('127.0.0.1', 12345))
+s.connect((ipaddr, 12345))
 
 # algorithm name
 s.sendall(md)
